@@ -1,5 +1,7 @@
 module MySDL where
 
+import qualified Data.Word as Word
+
 import qualified SDL
 import Linear
 
@@ -19,11 +21,15 @@ withWindow config f = do
 withSurface :: SDL.Window -> IO (SDL.Window, SDL.Surface)
 withSurface window = do
   screenSurface <- SDL.getWindowSurface window
-  screenSurfaceFormat <- SDL.surfaceFormat screenSurface
-  white <- SDL.mapRGB screenSurfaceFormat (V3 maxBound maxBound maxBound)
-  SDL.fillRect screenSurface Nothing white
-  SDL.updateWindowSurface window
+  paintScreen (maxBound,maxBound,maxBound) screenSurface
   return (window, screenSurface)
+
+
+paintScreen :: (Word.Word8, Word.Word8, Word.Word8) -> SDL.Surface -> IO ()
+paintScreen (r,g,b) screenSurface = do
+  screenSurfaceFormat <- SDL.surfaceFormat screenSurface
+  white <- SDL.mapRGB screenSurfaceFormat (V3 r g b)
+  SDL.fillRect screenSurface Nothing white
 
 updateWindow :: SDL.Window -> IO ()
 updateWindow = SDL.updateWindowSurface
