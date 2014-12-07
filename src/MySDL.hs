@@ -10,7 +10,7 @@ import Config
 withWindow :: Config -> (SDL.Window -> IO ()) -> IO ()
 withWindow config f = do
   SDL.initialize [SDL.InitVideo]
-  window <- SDL.createWindow (title config) SDL.defaultWindow { SDL.windowSize = size config }
+  window <- SDL.createWindow (title config) SDL.defaultWindow { SDL.windowOpenGL = Just SDL.defaultOpenGL, SDL.windowSize = size config }
   SDL.showWindow window
 
   f window
