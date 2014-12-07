@@ -16,10 +16,14 @@ withWindow config f = do
   SDL.destroyWindow window
   SDL.quit
 
-withSurface :: SDL.Window -> IO ()
+withSurface :: SDL.Window -> IO (SDL.Window, SDL.Surface)
 withSurface window = do
   screenSurface <- SDL.getWindowSurface window
   screenSurfaceFormat <- SDL.surfaceFormat screenSurface
   white <- SDL.mapRGB screenSurfaceFormat (V3 maxBound maxBound maxBound)
   SDL.fillRect screenSurface Nothing white
   SDL.updateWindowSurface window
+  return (window, screenSurface)
+
+updateWindow :: SDL.Window -> IO ()
+updateWindow = SDL.updateWindowSurface
