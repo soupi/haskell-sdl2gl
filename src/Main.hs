@@ -1,7 +1,7 @@
 module Main where
 
-import Control.Monad ((>=>), when, unless)
-import Debug.Trace (traceShow, trace)
+import Control.Monad (unless)
+-- import Debug.Trace (traceShow, trace)
 import qualified Data.Word as Word
 import qualified MySDL
 import qualified SDL

@@ -9,18 +9,18 @@ import qualified Data.Word as Word
 import qualified SDL
 import Linear
 
-import Config
+import qualified Config as C
 
 myOpenGLConfig :: SDL.OpenGLConfig
 myOpenGLConfig = SDL.defaultOpenGL { SDL.glProfile = SDL.Core SDL.Normal 3 2 }
 
-myWindowConfig :: Config -> SDL.WindowConfig
-myWindowConfig config = SDL.defaultWindow { SDL.windowOpenGL = Just myOpenGLConfig, SDL.windowSize = size config }
+myWindowConfig :: C.Config -> SDL.WindowConfig
+myWindowConfig config = SDL.defaultWindow { SDL.windowOpenGL = Just myOpenGLConfig, SDL.windowSize = C.size config }
 
-createMyWindow :: Config -> IO SDL.Window
-createMyWindow config = SDL.createWindow (title config) (myWindowConfig config)
+createMyWindow :: C.Config -> IO SDL.Window
+createMyWindow config = SDL.createWindow (C.title config) (myWindowConfig config)
 
-withWindow :: Config -> (SDL.Window -> IO ()) -> IO ()
+withWindow :: C.Config -> (SDL.Window -> IO ()) -> IO ()
 withWindow config go = do
   SDL.initialize [SDL.InitVideo]
   window <- createMyWindow config
@@ -32,7 +32,7 @@ withWindow config go = do
   SDL.quit
 
 withSurface :: SDL.Window -> ((SDL.Window, SDL.Surface) -> IO ()) -> IO ()
-withSurface window go= do
+withSurface window go = do
   screenSurface <- SDL.getWindowSurface window
   paintScreen (maxBound,maxBound,maxBound) screenSurface
 
