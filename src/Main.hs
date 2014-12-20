@@ -1,6 +1,6 @@
 module Main where
 
-import Control.Monad ((>=>), when)
+import Control.Monad ((>=>), when, unless)
 import Debug.Trace (traceShow, trace)
 import qualified Data.Word as Word
 import qualified MySDL
@@ -10,27 +10,28 @@ import Config
 import qualified World as W
 
 main :: IO ()
-main = MySDL.withWindow config (MySDL.withSurface >=> gameloop logic . initWorld)
+main = MySDL.withWindow config $ flip MySDL.withSurface (gameloop logic . initWorld)
 
 initWorld :: (SDL.Window, SDL.Surface) -> W.World
 initWorld (window,surface) = W.World window surface False maxBound
 
-gameloop :: (W.World -> IO W.World) -> W.World -> IO ()
-gameloop f world = do
+gameloop :: (W.World -> [SDL.Event] -> IO W.World) -> W.World -> IO ()
+gameloop update world = do
   tick <- SDL.ticks
 
-  new_world <- f world
+  events <- MySDL.collectEvents
+  new_world <- update world events
   MySDL.updateWindow (W.getWindow new_world)
 
   new_tick <- SDL.ticks
-  when (17 - (new_tick - tick) < 17 && (17 - (new_tick - tick)) > 0) $ SDL.delay $ 17 - (new_tick - tick)
+  MySDL.regulateTicks 17 tick new_tick
 
-  gameloop f new_world
+  unless (MySDL.checkEvent SDL.QuitEvent events) $ gameloop update new_world
 
 
 
-logic :: W.World -> IO W.World
-logic world = do
+logic :: W.World -> [SDL.Event] -> IO W.World
+logic world _ = do
   let (new_isup, n) = newIsupNum (W.getIsup world) (W.getNum world)
   MySDL.paintScreen (n,(50 + n) `mod` maxBound,(100 + n) `mod` maxBound) (W.getSurface world)
   return $ world { W.getIsup = new_isup, W.getNum = n }
