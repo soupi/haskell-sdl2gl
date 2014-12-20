@@ -29,12 +29,12 @@ gameloop update world = do
   unless (MySDL.checkEvent SDL.QuitEvent events) $ gameloop update new_world
 
 
-
 logic :: W.World -> [SDL.Event] -> IO W.World
 logic world _ = do
   let (new_isup, n) = newIsupNum (W.getIsup world) (W.getNum world)
   MySDL.paintScreen (n,(50 + n) `mod` maxBound,(100 + n) `mod` maxBound) (W.getSurface world)
   return $ world { W.getIsup = new_isup, W.getNum = n }
+
 
 newIsupNum :: Bool -> Word.Word8 -> (Bool, Word.Word8)
 newIsupNum isup num
