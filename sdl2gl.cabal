@@ -1,8 +1,8 @@
-name:                sdl2test
+name:                sdl2gl
 version:             0.1.0.0
 synopsis:            sdl2 testing
 -- description:
-homepage:            https://gitlab.com/gilmi/sdl2gl.git
+homepage:            https://github.com/soupi/haskell-sdl2gl.git
 license:             MIT
 license-file:        LICENSE
 author:              suppi
@@ -13,7 +13,7 @@ build-type:          Simple
 -- extra-source-files:
 cabal-version:       >=1.10
 
-executable sdl2test
+executable sdl2gl
   main-is:             Main.hs
   -- other-modules:
   other-extensions:    LambdaCase
