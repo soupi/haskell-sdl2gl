@@ -1,3 +1,5 @@
+-- MySDL: some wrappers and utility functions around SDL
+
 {-# LANGUAGE LambdaCase #-}
 
 module MySDL where
