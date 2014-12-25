@@ -2,7 +2,6 @@
 
 module Main where
 
-import Control.Monad (unless)
 -- import Debug.Trace (traceShow, trace)
 import qualified Data.Word as Word
 import qualified MySDL
@@ -22,18 +21,7 @@ initWorld (window,surface) = W.World window surface False maxBound
 -- game loop: takes an update function and the current world
 -- manage ticks, events and loop
 gameloop :: (W.World -> [SDL.Event] -> IO W.World) -> W.World -> IO ()
-gameloop update world = do
-  tick <- SDL.ticks
-
-  events <- MySDL.collectEvents
-  new_world <- update world events
-  MySDL.updateWindow (W.getWindow new_world)
-
-  new_tick <- SDL.ticks
-  MySDL.regulateTicks 17 tick new_tick
-
-  unless (MySDL.checkEvent SDL.QuitEvent events) $ gameloop update new_world
-
+gameloop = MySDL.gameloop W.getWindow
 
 -- update function of world, changes the color of the screen
 logic :: W.World -> [SDL.Event] -> IO W.World

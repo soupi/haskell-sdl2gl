@@ -1,7 +1,7 @@
 name:                sdl2gl
 version:             0.1.0.0
 synopsis:            sdl2 testing
--- description:
+description:         a wrapper of some utility functions around sdl2 to be used with gl
 homepage:            https://github.com/soupi/haskell-sdl2gl.git
 license:             MIT
 license-file:        LICENSE
@@ -13,7 +13,33 @@ build-type:          Simple
 -- extra-source-files:
 cabal-version:       >=1.10
 
-executable sdl2gl
+flag examples
+  description: how to use it
+  default:     True
+
+library
+  ghc-options: -threaded -Wall -fwarn-tabs -funbox-strict-fields -O2
+               -fno-warn-orphans -fno-warn-unused-do-bind
+
+  exposed-modules:
+    MySDL
+    Config
+
+  hs-source-dirs:    src/MySDL
+
+  default-language:  Haskell2010
+
+  other-extensions:  LambdaCase
+
+  build-depends:     base >=4.7
+                     ,sdl2
+                     ,text
+                     ,linear >= 1.10.1.2
+                     ,gl
+      
+
+
+executable example01
   main-is:             Main.hs
   -- other-modules:
   other-extensions:    LambdaCase
@@ -21,12 +47,15 @@ executable sdl2gl
                       ,sdl2
                       ,text
                       ,linear >= 1.10.1.2
-  hs-source-dirs: src
+                      ,gl
+                      ,sdl2gl
+
+  hs-source-dirs: src/Examples/Example01
   default-language:    Haskell2010
 
   if impl(ghc >= 6.12.0)
-    ghc-options: -threaded -Wall -fwarn-tabs -funbox-strict-fields -O2 
+    ghc-options: -threaded -Wall -fwarn-tabs -funbox-strict-fields -O2
                  -fno-warn-orphans -fno-warn-unused-do-bind
   else
-    ghc-options: -threaded -Wall -fwarn-tabs -funbox-strict-fields -O2 
+    ghc-options: -threaded -Wall -fwarn-tabs -funbox-strict-fields -O2
                  -fno-warn-orphans

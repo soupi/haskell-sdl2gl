@@ -4,7 +4,7 @@
 
 module MySDL where
 
-import Control.Monad (when)
+import Control.Monad (when, unless)
 import Control.Applicative ((<$>))
 import qualified Data.Word as Word
 
@@ -44,6 +44,21 @@ withSurface window go = do
 
   SDL.freeSurface screenSurface
 
+-- game loop: takes an update function and the current world
+-- manage ticks, events and loop
+gameloop :: (a -> SDL.Window) -> (a -> [SDL.Event] -> IO a) -> a -> IO ()
+gameloop getWindowFromWorld update world = do
+  tick <- SDL.ticks
+
+  events <- MySDL.collectEvents
+  new_world <- update world events
+  MySDL.updateWindow (getWindowFromWorld new_world)
+
+  new_tick <- SDL.ticks
+  MySDL.regulateTicks 17 tick new_tick
+
+  unless (MySDL.checkEvent SDL.QuitEvent events) $ gameloop getWindowFromWorld update new_world
+
 -- paint background
 paintScreen :: (Word.Word8, Word.Word8, Word.Word8) -> SDL.Surface -> IO ()
 paintScreen (r,g,b) screenSurface = do
@@ -51,10 +66,11 @@ paintScreen (r,g,b) screenSurface = do
   white <- SDL.mapRGB screenSurfaceFormat (V3 r g b)
   SDL.fillRect screenSurface Nothing white
 
-
+-- update window
 updateWindow :: SDL.Window -> IO ()
 updateWindow = SDL.updateWindowSurface
 
+-- collect all events from inputs
 collectEvents :: IO [SDL.Event]
 collectEvents = SDL.pollEvent >>= \case
     Nothing -> return []
