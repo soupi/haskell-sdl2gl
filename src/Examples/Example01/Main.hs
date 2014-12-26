@@ -15,7 +15,7 @@ main = MySDL.withWindow C.defaultConfig $ flip MySDL.withSurface (gameloop . ini
 
 -- init World
 initWorld :: (SDL.Window, SDL.Surface) -> W.World
-initWorld (window,surface) = W.World window surface False maxBound
+initWorld (window,surface) = W.World window surface
 
 -- game loop: takes an update function and the current world
 -- manage ticks, events and loop

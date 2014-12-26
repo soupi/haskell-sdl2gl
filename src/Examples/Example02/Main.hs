@@ -10,6 +10,7 @@ import qualified SDL
 import qualified Config as C
 import qualified World as W
 
+
 -- setup window, surface and  world and send them to gameloop along with a update logic function
 main :: IO ()
 main = MySDL.withWindow C.defaultConfig $ flip MySDL.withSurface (gameloop . initWorld)

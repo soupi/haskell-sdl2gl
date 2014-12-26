@@ -4,8 +4,6 @@
 
 module World where
 
-import qualified Data.Word as Word
-
 import qualified SDL
 
 -- World: data type to represent the world and its components
