@@ -33,7 +33,7 @@ initWorld posShaderFilePath clrShaderFilePath (window,surface) = do
   vbo <- F.alloca useVBO
   compileShader posShaderFilePath GL.GL_VERTEX_SHADER
   compileShader clrShaderFilePath GL.GL_FRAGMENT_SHADER
-  return $ W.World window surface False maxBound
+  return $ W.World window surface
 
 useVBO :: F.Ptr GL.GLuint -> IO W.Word32
 useVBO vboPtr = do
