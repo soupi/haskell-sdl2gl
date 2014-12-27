@@ -25,12 +25,15 @@ createMyWindow config = SDL.createWindow (C.title config) (myWindowConfig config
 -- will init SDL and create a Window and pass in as a parameter to function
 withWindow :: C.Config -> (SDL.Window -> IO ()) -> IO ()
 withWindow config go = do
-  SDL.initialize [SDL.InitVideo]
+  SDL.initialize [SDL.InitEverything]
   window <- createMyWindow config
+  ctx <- SDL.glCreateContext window
+  SDL.glMakeCurrent window ctx
   SDL.showWindow window
 
   go window
 
+  SDL.glDeleteContext ctx
   SDL.destroyWindow window
   SDL.quit
 
@@ -46,18 +49,18 @@ withSurface window go = do
 
 -- game loop: takes an update function and the current world
 -- manage ticks, events and loop
-gameloop :: (a -> SDL.Window) -> (a -> [SDL.Event] -> IO a) -> a -> IO ()
-gameloop getWindowFromWorld update world = do
+gameloop :: (a -> [SDL.Event] -> IO a) -> a -> IO ()
+gameloop update world = do
   tick <- SDL.ticks
 
   events <- MySDL.collectEvents
   new_world <- update world events
-  MySDL.updateWindow (getWindowFromWorld new_world)
+  -- MySDL.updateWindow (getWindowFromWorld new_world)
 
   new_tick <- SDL.ticks
   MySDL.regulateTicks 17 tick new_tick
 
-  unless (MySDL.checkEvent SDL.QuitEvent events) $ gameloop getWindowFromWorld update new_world
+  unless (MySDL.checkEvent SDL.QuitEvent events) $ gameloop update new_world
 
 -- paint background
 paintScreen :: (Word.Word8, Word.Word8, Word.Word8) -> SDL.Surface -> IO ()

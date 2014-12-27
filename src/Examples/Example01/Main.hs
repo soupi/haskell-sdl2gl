@@ -20,8 +20,10 @@ initWorld (window,surface) = W.World window surface
 -- game loop: takes an update function and the current world
 -- manage ticks, events and loop
 gameloop :: W.World -> IO ()
-gameloop = MySDL.gameloop W.getWindow logic
+gameloop = MySDL.gameloop logic
 
--- update function of world, changes the color of the screen
+-- update function of world
 logic :: W.World -> [SDL.Event] -> IO W.World
-logic world _ = return world
+logic world _ = do
+  MySDL.updateWindow (W.getWindow world)
+  return world

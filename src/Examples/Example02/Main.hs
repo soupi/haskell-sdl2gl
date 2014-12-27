@@ -22,13 +22,14 @@ initWorld (window,surface) = W.World window surface False maxBound
 -- game loop: takes an update function and the current world
 -- manage ticks, events and loop
 gameloop :: W.World -> IO ()
-gameloop = MySDL.gameloop W.getWindow logic
+gameloop = MySDL.gameloop logic
 
 -- update function of world, changes the color of the screen
 logic :: W.World -> [SDL.Event] -> IO W.World
 logic world _ = do
   let (new_isup, n) = newIsupNum (W.getIsup world) (W.getNum world)
   MySDL.paintScreen (n,(50 + n) `mod` maxBound,(100 + n) `mod` maxBound) (W.getSurface world)
+  MySDL.updateWindow (W.getWindow world)
   return $ world { W.getIsup = new_isup, W.getNum = n }
 
 

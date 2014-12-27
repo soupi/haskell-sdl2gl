@@ -14,7 +14,7 @@ data Config = Config { title :: Text, glConf :: SDL.OpenGLConfig, size :: V2 CIn
 
 -- Config: OpenGL Core 3.2
 myOpenGLConfig :: SDL.OpenGLConfig
-myOpenGLConfig = SDL.defaultOpenGL { SDL.glProfile = SDL.Core SDL.Normal 3 2 }
+myOpenGLConfig = SDL.defaultOpenGL { SDL.glProfile = SDL.Core SDL.Debug 3 2 }
 
 -- window configuration
 defaultConfig :: Config

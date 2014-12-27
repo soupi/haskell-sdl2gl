@@ -2,15 +2,14 @@
 
 module Main where
 
-import Debug.Trace (traceShow, trace)
+--import Debug.Trace (traceShow, trace)
 import Control.Monad ((<=<))
-import Data.Foldable (concat)
 import System.Environment (getArgs)
 import qualified Data.Word as W
 import qualified SDL
 import qualified Graphics.GL.Core32 as GL
 import qualified Graphics.GL.Types as GL
-import qualified Foreign as F (alloca, allocaArray, allocaArray0, pokeArray, peekArray, sizeOf, peek)
+import qualified Foreign as F (alloca, allocaArray, allocaArray0, pokeArray, peekArray, peekArray0, sizeOf, peek)
 import qualified Foreign.Ptr as F (Ptr, castPtr, nullPtr)
 import qualified Foreign.C.String as F (withCString, castCCharToChar)
 import qualified Foreign.C.Types as F
@@ -21,19 +20,19 @@ import qualified MySDL
 import qualified Config as C
 import qualified World as W
 
--- setup window, surface and  world and send them to gameloop along with a update logic function
+-- setup window and world and send them to gameloop along with a update logic function
 main :: IO ()
 main = do
   [posShaderFilePath, clrShaderFilePath] <- getArgs
-  MySDL.withWindow C.defaultConfig $ flip MySDL.withSurface (gameloop <=< initWorld posShaderFilePath clrShaderFilePath)
+  MySDL.withWindow C.defaultConfig $ gameloop <=< initWorld posShaderFilePath clrShaderFilePath
 
 -- init World
-initWorld :: String -> String -> (SDL.Window, SDL.Surface) -> IO W.World
-initWorld posShaderFilePath clrShaderFilePath (window,surface) = do
+initWorld :: String -> String -> SDL.Window -> IO W.World
+initWorld posShaderFilePath clrShaderFilePath window = do
   vbo <- F.alloca useVBO
   compileShader posShaderFilePath GL.GL_VERTEX_SHADER
   compileShader clrShaderFilePath GL.GL_FRAGMENT_SHADER
-  return $ W.World window surface
+  return $ W.World window
 
 useVBO :: F.Ptr GL.GLuint -> IO W.Word32
 useVBO vboPtr = do
@@ -55,14 +54,15 @@ compileShader shaderSourcePath shaderType = do
   F.withCString shaderSource $ flip F.with (\shaderSourcePtr -> GL.glShaderSource shader 1 shaderSourcePtr F.nullPtr)
   GL.glCompileShader shader
   F.alloca (\status -> GL.glGetShaderiv shader GL.GL_COMPILE_STATUS status >> F.peek status >>= print . (==) GL.GL_TRUE)
-  F.allocaArray0 511 (\arr -> GL.glGetShaderInfoLog shader 512 F.nullPtr arr >> F.peekArray 512 arr >>= putStrLn . fmap F.castCCharToChar)
+  --F.allocaArray0 511 (\arr -> GL.glGetShaderInfoLog shader 512 F.nullPtr arr >> F.peekArray 512 arr >>= putStrLn . fmap F.castCCharToChar)
+  --GL.glGetString GL.GL_VERSION >>= F.peekArray0 0 >>= print
 
 
 -- game loop: takes an update function and the current world
 -- manage ticks, events and loop
 gameloop :: W.World -> IO ()
-gameloop = MySDL.gameloop W.getWindow logic
+gameloop = MySDL.gameloop logic
 
--- update function of world, changes the color of the screen
+-- update function of world
 logic :: W.World -> [SDL.Event] -> IO W.World
 logic world _ = return world
