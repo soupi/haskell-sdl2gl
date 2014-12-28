@@ -1,5 +1,7 @@
 -- Main: contains entry point, init world function, game loop and game logic
 
+{-# LANGUAGE LambdaCase #-}
+
 module Main where
 
 --import Debug.Trace (traceShow, trace)
@@ -9,12 +11,13 @@ import qualified Data.Word as W
 import qualified SDL
 import qualified Graphics.GL.Core32 as GL
 import qualified Graphics.GL.Types as GL
-import qualified Foreign as F (alloca, allocaArray, allocaArray0, pokeArray, peekArray, peekArray0, sizeOf, peek)
+import qualified Foreign as F (alloca, peek)
 import qualified Foreign.Ptr as F (Ptr, castPtr, nullPtr)
-import qualified Foreign.C.String as F (withCString)--, castCCharToChar)
+import qualified Foreign.C.String as F (withCString)
 import qualified Foreign.C.Types as F
 import qualified Foreign.Marshal.Utils as F (with)
---import qualified Foreign.Marshal.Array as F (withArray0)
+import qualified Foreign.Marshal.Array as F (withArray)
+import Data.Int (Int64)
 
 import qualified MySDL
 import qualified GLUtils
@@ -23,9 +26,11 @@ import qualified World as W
 
 -- setup window and world and send them to gameloop along with a update logic function
 main :: IO ()
-main = do
-  [posShaderFilePath, clrShaderFilePath] <- getArgs
-  MySDL.withWindow C.defaultConfig $ flip (withGL posShaderFilePath clrShaderFilePath) $ gameloop <=< initWorld
+main =
+  getArgs >>= \case
+    [posShaderFilePath, clrShaderFilePath] ->
+      MySDL.withWindow C.defaultConfig $ flip (withGL posShaderFilePath clrShaderFilePath) $ gameloop <=< initWorld
+    _ -> putStrLn "usage: cabal run example03 <vertex shader> <fragment shader>"
 
 
 withGL :: String -> String -> SDL.Window -> (SDL.Window -> IO ()) -> IO ()
@@ -67,14 +72,13 @@ useVBO :: F.Ptr GL.GLuint -> IO W.Word32
 useVBO vboPtr = do
   vbo <- GL.glGenBuffers 1 vboPtr >> F.peek vboPtr
   GL.glBindBuffer GL.GL_ARRAY_BUFFER vbo
-  F.allocaArray 6 $ sendVerticesToGPU [0, 0.5, 0.5, -0.5, -0.5, -0.5]
+  F.withArray (map F.CFloat [0, 0.5, 0.5, -0.5, -0.5, -0.5]) (sendVerticesToGPU 24)
   return vbo
 
 -- copy vertex data to gpu
-sendVerticesToGPU :: [Float] -> F.Ptr F.CFloat -> IO ()
-sendVerticesToGPU vertices vertices_array = do
-  F.pokeArray vertices_array $ map F.CFloat vertices
-  GL.glBufferData GL.GL_ARRAY_BUFFER (F.CPtrdiff (fromIntegral (F.sizeOf vertices_array))) (F.castPtr vertices_array) GL.GL_STATIC_DRAW
+sendVerticesToGPU :: Int64 -> F.Ptr F.CFloat -> IO ()
+sendVerticesToGPU size vertices_array =
+  GL.glBufferData GL.GL_ARRAY_BUFFER (F.CPtrdiff size) (F.castPtr vertices_array) GL.GL_STATIC_DRAW
 
 -- Create Shader program, attach shaders, link and use
 createShaderProgram :: [(GL.GLuint, Maybe (GL.GLuint, String))] -> IO GL.GLuint
