@@ -16,7 +16,11 @@ import qualified Config as C
 
 -- Config window
 myWindowConfig :: C.Config -> SDL.WindowConfig
-myWindowConfig config = SDL.defaultWindow { SDL.windowOpenGL = Just (C.glConf config), SDL.windowSize = C.size config }
+myWindowConfig config =
+  SDL.defaultWindow
+    { SDL.windowOpenGL      = Just (C.glConf config)
+    , SDL.windowInitialSize = C.size config
+    }
 
 -- create a window with config
 createMyWindow :: C.Config -> IO SDL.Window
